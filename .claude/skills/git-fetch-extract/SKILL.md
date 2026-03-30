@@ -20,6 +20,7 @@ description: 从远端 Git 仓库的指定分支下载代码，并将仓库中 /
 - **磁盘空间**：克隆仓库会占用额外空间，解压后原仓库可手动删除，但脚本不会自动清理。
 - **分支名**：若分支名包含特殊字符（如 `/`），需确保正确转义。脚本使用 `git clone --branch <branch>`，支持普通分支名。
 - **压缩格式支持**：脚本支持 `.tar.gz`, `.tgz`, `.tar.bz2`, `.tbz2`, `.tar.xz`, `.txz`, `.zip`。其他格式（如 `.7z`）需要使用外部工具，脚本会给出提示。
+- **分支回退机制**：如果指定分支找不到 `/drv` 目录，脚本会自动尝试其他分支，直到找到包含压缩文件的分支。
 - **跨平台解压**：使用 Python 标准库，在 Windows/Linux 下均可工作。
 
 ## 脚本使用
@@ -41,12 +42,19 @@ repo_url：Git 仓库 URL（必需）
 --target：解压目标目录（可选，默认 output，相对于当前目录）
 
 **输出示例**：
-Cloning repository https://github.com/example/project.git (branch: develop)...
-Clone completed.
+Fetching remote branches from https://github.com/example/project.git...
+Branches available: main, develop, feature/x
+Will try branches in order: main, develop, feature/x
+
+Trying branch: main
+No drv/ directory found in branch 'main', trying next...
+
+Trying branch: develop
 Found 2 archive(s) in drv/:
   - a.tar.gz -> extracting to ./output...
   - b.zip -> extracting to ./output...
+Successfully extracted archives from branch 'develop'.
 Extraction completed.
 
-**若找不到压缩文件，会输出**
-No archive files found in drv/.
+**若所有分支都找不到压缩文件，会输出**
+Failed to find and extract archives from any branch.
